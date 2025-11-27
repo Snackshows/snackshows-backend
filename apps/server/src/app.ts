@@ -1,20 +1,8 @@
 import * as dotenv from 'dotenv';
 import express, { Application } from 'express';
 import cookieParser from 'cookie-parser';
-import authRouter from './routes/auth.routes';
-import userRouter from './routes/user.routes';
-import storeRouter from './routes/store.routes';
-import productRouter from './routes/product.routes';
-import collectionRouter from './routes/collection.routes';
-import categoryRouter from './routes/category.routes';
-import mediaRouter from './routes/media.routes';
-import orderRouter from './routes/order.routes';
-import customerRouter from './routes/customer.routes';
-import roleRouter from './routes/role.routes';
-import inventoryRouter from './routes/inventory.routes';
-import cartRouter from './routes/cart.routes';
-import paymentRouter from './routes/payment.routes';
-import settingsRouter from './routes/settings.routes';
+// import authRouter from './routes/auth.routes';
+
 
 // import eventsRouter from "./routes/events.routes";
 // import bookingRouter from "./routes/booking.routes";
@@ -73,7 +61,7 @@ app.enable('trust proxy');
 
 app.use(express.json({ limit: '20kb' }));
 // Routes Declaration
-app.use('/api/v1/auth', authRouter);
+// app.use('/api/v1/auth', authRouter);
 // app.use('/api/v1/role', roleRouter);
 // app.use('/api/v1/user', userRouter);
 // app.use('/api/v1/customer', customerRouter);
