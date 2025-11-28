@@ -11,7 +11,7 @@ import {
 import { ulid } from "ulid";
 
 export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
-export const userRoleEnum = pgEnum("userRole", ["USER", "ADMIN", "EMPLOYEE"]);
+// export const userRoleEnum = pgEnum("userRole", ["USER", "ADMIN", "EMPLOYEE"]);
 
 export const user = pgTable("user", {
   id: varchar("id")
@@ -22,6 +22,7 @@ export const user = pgTable("user", {
   age: integer("age"),
   gender: genderEnum(),
   avatar: varchar("avatar", { length: 255 }),
+  // role:userRoleEnum().notNull().default("USER"),
 
   email: varchar("email", { length: 255 }).unique(),
   password: varchar("password", { length: 255 }), // only for admin or web users

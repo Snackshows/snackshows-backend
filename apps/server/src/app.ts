@@ -1,11 +1,17 @@
 import * as dotenv from 'dotenv';
 import express, { Application } from 'express';
 import cookieParser from 'cookie-parser';
-// import authRouter from './routes/auth.routes';
+import authDashboardRouter from './routes/dashboard/auth.routes';
+import userDashboardRouter from './routes/dashboard/user.routes';
+import videoSeriesDashboardRouter from "./routes/dashboard/videoSeries.routes";
+import episodeDashboardRouter from "./routes/dashboard/episode.routes";
+// import categoryDashboardRouter from './routes/dashboard/category.routes';
 
 
 // import eventsRouter from "./routes/events.routes";
 // import bookingRouter from "./routes/booking.routes";
+
+import authAppRouter from './routes/app/auth.routes';
 import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
@@ -60,9 +66,17 @@ app.enable('trust proxy');
 // app.use('/api/v1/webhooks', webhooksRouter);
 
 app.use(express.json({ limit: '20kb' }));
-// Routes Declaration
-// app.use('/api/v1/auth', authRouter);
-// app.use('/api/v1/role', roleRouter);
+//Dashboard Routes Declaration
+app.use('/api/v1/dashboard/auth', authDashboardRouter);
+app.use('/api/v1/dashboard/users', userDashboardRouter);
+// app.use("/api/v1/dashboard/category", categoryDashboardRouter);
+app.use('/api/v1/dashboard/videoSeries', videoSeriesDashboardRouter);
+app.use('/api/v1/dashboard/episode', episodeDashboardRouter);
+
+
+
+//Application Routes Declaration
+app.use('/api/v1/app/auth', authAppRouter);
 // app.use('/api/v1/user', userRouter);
 // app.use('/api/v1/customer', customerRouter);
 // app.use('/api/v1/cart', cartRouter);

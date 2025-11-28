@@ -10,6 +10,7 @@ import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { user } from "../db/schema/user";
 import { Request } from "express";
+import { employee } from "../db/schema";
 
 interface GoogleUserProfile {
   id: string;
@@ -34,18 +35,18 @@ export const initializePassportStrategies = () => {
 	    USER LOCAL LOGIN (Admin/Web User)
 	===================================================================== */
   passport.use(
-    "user-local",
+    "employee-local",
     new localStrategy(
       { usernameField: "email", passwordField: "password" },
       async (email, password, done) => {
         //authentication Logic here
         try {
           console.log("Receive Credentials", email, password);
-          const existingUser = await db.query.user.findFirst({
-            where: eq(user.email, email),
+          const existingEmployee = await db.query.employee.findFirst({
+            where: eq(employee.email, email),
           });
 
-          if (!existingUser) {
+          if (!existingEmployee) {
             return done(null, false, { message: "Incorrect email" });
           }
 
@@ -58,25 +59,25 @@ export const initializePassportStrategies = () => {
           // 	});
           // }
 
-          console.debug("user Profile Details", existingUser);
+          console.debug("user Profile Details", existingEmployee);
 
           const isPasswordMatched = await comparePassword(
             password,
-            existingUser.password!
+            existingEmployee.password!
           );
 
           if (isPasswordMatched) {
             ///User is Authenticated
             console.log("Auth Parsed User-->", isPasswordMatched);
 
-            const refreshToken = generateRefreshToken(existingUser.id);
+            const refreshToken = generateRefreshToken(existingEmployee.id);
 
-            const [updatedUser] = await db
-              .update(user)
+            const [updatedEmployee] = await db
+              .update(employee)
               .set({
                 refreshToken,
               })
-              .where(eq(user.id, existingUser.id))
+              .where(eq(employee.id, existingEmployee.id))
               .returning();
 
             console.log(
@@ -85,7 +86,7 @@ export const initializePassportStrategies = () => {
               password,
               refreshToken
             );
-            return done(null, updatedUser);
+            return done(null, updatedEmployee);
           } else {
             return done(null, false, { message: "Incorrect Password" });
           }
@@ -214,7 +215,7 @@ export const initializePassportStrategies = () => {
         clientSecret: process.env.OAUTH_CLIENT_SECRET!,
         callbackURL:
           process.env.OAUTH_CALLBACK_URL ||
-          "http://localhost:8000/api/v1/auth/google/callback",
+          "http://localhost:8000/api/v1/app/auth/google/callback",
       },
       async function (accessToken, refreshToken, profile, done) {
         const userProfile = profile as GoogleUserProfile;
