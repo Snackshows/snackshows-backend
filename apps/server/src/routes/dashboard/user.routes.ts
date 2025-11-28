@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   deleteUserProfile,
   forgetPassword,
+  getAllUsers,
   getUserNotification,
   getUserSettings,
   logoutUser,
@@ -11,12 +12,12 @@ import {
   updateUserSecurity,
   updateUserSettings,
   userProfile,
-} from "../controllers/user.controllers";
-import { jwtAuthMiddleware } from "../middleware/auth.middleware";
+} from "../../controllers/dashboard/user.controllers";
+import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-router.route("/").get(jwtAuthMiddleware);
+router.route("/").get(jwtAuthMiddleware, getAllUsers);
 
 router
   .route("/profile")

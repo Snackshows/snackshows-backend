@@ -1,15 +1,38 @@
 import { Request, Response } from "express";
-import asyncHandler from "../utils/asyncHandler";
-import ApiError from "../utils/ApiError";
-import { db } from "../db";
+import asyncHandler from "../../utils/asyncHandler";
+import ApiError from "../../utils/ApiError";
+import { db } from "../../db";
 import { eq, InferSelectModel } from "drizzle-orm";
-import ApiResponse from "../utils/ApiResponse";
-import { passwordHashed } from "../helper/hasher";
-import { user } from "../db/schema";
+import ApiResponse from "../../utils/ApiResponse";
+import { passwordHashed } from "../../helper/hasher";
+import { user } from "../../db/schema";
 import {
   generateResetPasswordToken,
   verifyResetPasswordJwtToken,
-} from "../helper/token";
+} from "../../helper/token";
+
+
+export const getAllUsers = asyncHandler(
+  async (request: Request, response: Response) => {
+    // const authUser = request.user   as InferSelectModel<typeof user>;
+
+    try {
+      const userprofile = await db.query.user.findMany({
+        columns: {
+          password: false,
+          refreshToken: false,
+        },
+      });
+
+      response
+        .status(200)
+        .json(new ApiResponse(200, userprofile, "Fetch Users Details"));
+    } catch (error) {
+      response.status(400).json(new ApiError(400, "Error Happened", error));
+    }
+  }
+);
+
 
 
 export const userProfile = asyncHandler(

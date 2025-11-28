@@ -11,8 +11,8 @@ import {
   updateUserSecurity,
   updateUserSettings,
   userProfile,
-} from "../controllers/user.controllers";
-import { jwtAuthMiddleware } from "../middleware/auth.middleware";
+} from "../../controllers/dashboard/user.controllers";
+import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
 

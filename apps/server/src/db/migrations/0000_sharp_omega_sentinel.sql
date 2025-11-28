@@ -1,3 +1,5 @@
+CREATE TYPE "public"."userRole" AS ENUM('USER', 'ADMIN', 'EMPLOYEE');--> statement-breakpoint
+CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other');--> statement-breakpoint
 CREATE TYPE "public"."payment_gateway" AS ENUM('stripe', 'razorpay', 'phonepe', 'paytm');--> statement-breakpoint
 CREATE TABLE "gateway_configs" (
 	"id" varchar PRIMARY KEY NOT NULL,
@@ -24,6 +26,35 @@ CREATE TABLE "category" (
 	CONSTRAINT "category_unique_id_unique" UNIQUE("unique_id")
 );
 --> statement-breakpoint
+CREATE TABLE "user" (
+	"id" varchar PRIMARY KEY NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"age" integer,
+	"gender" "gender",
+	"avatar" varchar(255),
+	"role" "userRole" DEFAULT 'USER' NOT NULL,
+	"email" varchar(255),
+	"password" varchar(255),
+	"phone" varchar(20),
+	"otp" varchar(6),
+	"otp_expires_at" timestamp,
+	"google_id" varchar(255),
+	"google_mail" varchar(255),
+	"instagram_id" varchar(255),
+	"instagram_mail" varchar(255),
+	"is_active" boolean DEFAULT true NOT NULL,
+	"date_of_birth" timestamp,
+	"refresh_token" varchar,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "user_email_unique" UNIQUE("email"),
+	CONSTRAINT "user_phone_unique" UNIQUE("phone"),
+	CONSTRAINT "user_google_id_unique" UNIQUE("google_id"),
+	CONSTRAINT "user_google_mail_unique" UNIQUE("google_mail"),
+	CONSTRAINT "user_instagram_id_unique" UNIQUE("instagram_id"),
+	CONSTRAINT "user_instagram_mail_unique" UNIQUE("instagram_mail")
+);
+--> statement-breakpoint
 CREATE TABLE "episode" (
 	"id" varchar PRIMARY KEY NOT NULL,
 	"vertical_id" varchar,
@@ -45,19 +76,6 @@ CREATE TABLE "media" (
 	"url" varchar,
 	"key" varchar,
 	"size" varchar,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "user" (
-	"id" varchar PRIMARY KEY NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"age" integer NOT NULL,
-	"gender" "gender" NOT NULL,
-	"avatar" varchar(255),
-	"is_active" boolean DEFAULT true NOT NULL,
-	"date_of_birth" timestamp NOT NULL,
-	"refresh_token" varchar,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
