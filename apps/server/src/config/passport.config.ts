@@ -8,7 +8,7 @@ import { generateRefreshToken } from "../helper/token";
 import passportOAuth from "passport-google-oauth20";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
-import { user } from "../db/schema/user";
+import { user } from "../db/schema/user.schema";
 import { Request } from "express";
 import { employee } from "../db/schema";
 
@@ -261,45 +261,45 @@ export const initializePassportStrategies = () => {
   /* =====================================================================
 	     INSTAGRAM LOGIN (OAuth2)
 	===================================================================== */
-//   passport.use(
-//     new InstagramStrategy(
-//       {
-//         clientID: process.env.INSTAGRAM_CLIENT_ID!,
-//         clientSecret: process.env.INSTAGRAM_CLIENT_SECRET!,
-//         callbackURL: process.env.INSTAGRAM_CALLBACK_URL!,
-//       },
+  //   passport.use(
+  //     new InstagramStrategy(
+  //       {
+  //         clientID: process.env.INSTAGRAM_CLIENT_ID!,
+  //         clientSecret: process.env.INSTAGRAM_CLIENT_SECRET!,
+  //         callbackURL: process.env.INSTAGRAM_CALLBACK_URL!,
+  //       },
 
-//       async (accessToken, refreshToken, profile, done) => {
-//         try {
-//           let instaUser = await db.query.user.findFirst({
-//             where: eq(user.instagramId, profile.id),
-//           });
+  //       async (accessToken, refreshToken, profile, done) => {
+  //         try {
+  //           let instaUser = await db.query.user.findFirst({
+  //             where: eq(user.instagramId, profile.id),
+  //           });
 
-//           // Instagram returns NO email → you must ask user later
-//           if (!instaUser) {
-//             [instaUser] = await db
-//               .insert(user)
-//               .values({
-//                 instagramId: profile.id,
-//                 firstName: profile.username,
-//                 avatar: profile.profile_picture,
-//               })
-//               .returning();
-//           }
+  //           // Instagram returns NO email → you must ask user later
+  //           if (!instaUser) {
+  //             [instaUser] = await db
+  //               .insert(user)
+  //               .values({
+  //                 instagramId: profile.id,
+  //                 firstName: profile.username,
+  //                 avatar: profile.profile_picture,
+  //               })
+  //               .returning();
+  //           }
 
-//           const newRefresh = generateRefreshToken(instaUser.id);
+  //           const newRefresh = generateRefreshToken(instaUser.id);
 
-//           const [updated] = await db
-//             .update(user)
-//             .set({ refreshToken: newRefresh })
-//             .where(eq(user.id, instaUser.id))
-//             .returning();
+  //           const [updated] = await db
+  //             .update(user)
+  //             .set({ refreshToken: newRefresh })
+  //             .where(eq(user.id, instaUser.id))
+  //             .returning();
 
-//           return done(null, updated);
-//         } catch (err) {
-//           return done(err);
-//         }
-//       }
-//     )
-//   );
+  //           return done(null, updated);
+  //         } catch (err) {
+  //           return done(err);
+  //         }
+  //       }
+  //     )
+  //   );
 };

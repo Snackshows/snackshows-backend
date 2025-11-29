@@ -14,6 +14,7 @@ interface User {
   email: string;
   refreshToken: string;
 }
+
 export const googleCallback = asyncHandler(
   async (request: Request, response: Response) => {
     try {
@@ -153,7 +154,7 @@ export const registerUser = asyncHandler(
           .values({
             name,
             email,
-            password: hashedPassword,
+            // password: hashedPassword,
             avatar,
            
           })
