@@ -18,21 +18,20 @@ export const getAllUsers = asyncHandler(
     try {
       const userprofile = await db.query.user.findMany({
         columns: {
-         
           refreshToken: false,
         },
       });
 
       response
         .status(200)
-        .json(new ApiResponse(200, userprofile, "Fetch Users Details"));
+        .json(new ApiResponse(200, userprofile, "Fetch All Users"));
     } catch (error) {
       response.status(400).json(new ApiError(400, "Error Happened", error));
     }
   }
 );
 
-export const createUser = asyncHandler(
+export const createNewUser = asyncHandler(
   async (request: Request, response: Response) => {
     const { name, age, gender, avatar, phone } = request.body;
 
@@ -48,24 +47,59 @@ export const createUser = asyncHandler(
             : null;
 
     try {
-      const createdUser = await db.insert(user).values({
-        name,
-        age,
-        gender: isValidGender,
-        avatar,
-        phone,
+      const findUser = await db.query.user.findFirst({
+        where: eq(user.phone, phone),
       });
 
-      response
-        .status(200)
-        .json(new ApiResponse(200, createdUser, "User is Registered"));
+      if (findUser) {
+        response
+          .status(409)
+          .json(new ApiResponse(409, null, "User already exists"));
+      } else {
+        const createdUser = await db.insert(user).values({
+          name,
+          age,
+          gender: isValidGender,
+          avatar,
+          phone,
+        });
+
+        response
+          .status(200)
+          .json(new ApiResponse(200, createdUser, "User is Registered"));
+      }
     } catch (error) {
       response.status(400).json(new ApiError(400, "Error Happened", error));
     }
   }
 );
 
+export const getUserDetails = asyncHandler(
+  async (request: Request, response: Response) => {
+    const { userId } = request.params;
 
+    try {
+      const userprofile = await db.query.user.findFirst({
+        where: eq(user.id, userId),
+        columns: {
+          refreshToken: false,
+        },
+      });
+
+      if (!userprofile) {
+        return response
+          .status(404)
+          .json(new ApiResponse(404, null, "User not found"));
+      }
+
+      response
+        .status(200)
+        .json(new ApiResponse(200, userprofile, "Fetch User Details"));
+    } catch (error) {
+      response.status(400).json(new ApiError(400, "Error Happened", error));
+    }
+  }
+);
 
 // export const userProfile = asyncHandler(
 //   async (request: Request, response: Response) => {

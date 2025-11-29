@@ -17,43 +17,43 @@ interface User {
   refreshToken: string;
 }
 
-export const generateRefreshToken = asyncHandler(
-  async (request: Request, response: Response) => {
-    const refreshToken = request.cookies.refresh_token;
+// export const generateRefreshToken = asyncHandler(
+//   async (request: Request, response: Response) => {
+//     const refreshToken = request.cookies.refresh_token;
 
-    if (!refreshToken) {
-      response.status(403).json({ error: "Refresh token Missing" });
-    } else {
-      try {
-        const decoded = verifyRefreshJwtToken(refreshToken) as User;
+//     if (!refreshToken) {
+//       response.status(403).json({ error: "Refresh token Missing" });
+//     } else {
+//       try {
+//         const decoded = verifyRefreshJwtToken(refreshToken) as User;
 
-        //Find user in DB
-        const userData = await db.query.user.findFirst({
-          where: eq(employee.id, decoded.id),
-        });
+//         //Find user in DB
+//         const userData = await db.query.user.findFirst({
+//           where: eq(employee.id, decoded.id),
+//         });
 
-        if (!userData || userData.refreshToken !== refreshToken) {
-          response.status(403).json({ error: "Invalid refresh token" });
-        } else {
-          // Generate new tokens
-          const newAccessToken = generateAccessToken({
-            id: userData.id,
-            email: userData.email!,
-          });
-          response.cookie("access_token", newAccessToken, {
-            // httpOnly: true,
-            secure: true,
-            maxAge: 15 * 60 * 1000, // 15 minutes
-            sameSite: "none",
-          });
-          response.status(200).json({ accessToken: newAccessToken });
-        }
-      } catch {
-        response.status(403).json({ error: "Invalid token" });
-      }
-    }
-  }
-);
+//         if (!userData || userData.refreshToken !== refreshToken) {
+//           response.status(403).json({ error: "Invalid refresh token" });
+//         } else {
+//           // Generate new tokens
+//           const newAccessToken = generateAccessToken({
+//             id: userData.id,
+//             email: userData.email!,
+//           });
+//           response.cookie("access_token", newAccessToken, {
+//             // httpOnly: true,
+//             secure: true,
+//             maxAge: 15 * 60 * 1000, // 15 minutes
+//             sameSite: "none",
+//           });
+//           response.status(200).json({ accessToken: newAccessToken });
+//         }
+//       } catch {
+//         response.status(403).json({ error: "Invalid token" });
+//       }
+//     }
+//   }
+// );
 
 export const loginUser = asyncHandler(
   async (request: Request, response: Response) => {

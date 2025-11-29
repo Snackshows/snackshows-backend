@@ -1,18 +1,22 @@
 import { Router } from "express";
 import {
-  createUser,
+
   
+  createNewUser,
   getAllUsers,
+  getUserDetails,
  
 } from "../../controllers/dashboard/user.controllers";
 import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
+router.get("/:userId", jwtAuthMiddleware, getUserDetails);
 
 router
   .route("/")
   .get(jwtAuthMiddleware, getAllUsers)
-  .post(jwtAuthMiddleware, createUser);
+  .post(jwtAuthMiddleware, createNewUser);
+
 
 // router
 //   .route("/profile")
