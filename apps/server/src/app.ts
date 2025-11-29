@@ -5,7 +5,7 @@ import authDashboardRouter from './routes/dashboard/auth.routes';
 import userDashboardRouter from './routes/dashboard/user.routes';
 import videoSeriesDashboardRouter from "./routes/dashboard/videoSeries.routes";
 import episodeDashboardRouter from "./routes/dashboard/episode.routes";
-// import categoryDashboardRouter from './routes/dashboard/category.routes';
+import categoryDashboardRouter from './routes/dashboard/category.routes';
 
 
 // import eventsRouter from "./routes/events.routes";
@@ -69,7 +69,7 @@ app.use(express.json({ limit: '20kb' }));
 //Dashboard Routes Declaration
 app.use('/api/v1/dashboard/auth', authDashboardRouter);
 app.use('/api/v1/dashboard/users', userDashboardRouter);
-// app.use("/api/v1/dashboard/category", categoryDashboardRouter);
+app.use("/api/v1/dashboard/category", categoryDashboardRouter);
 app.use('/api/v1/dashboard/videoSeries', videoSeriesDashboardRouter);
 app.use('/api/v1/dashboard/episode', episodeDashboardRouter);
 

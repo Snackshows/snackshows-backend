@@ -42,7 +42,7 @@ export const googleCallback = asyncHandler(
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
-      // response.redirect(`${process.env.FRONTEND_ENDPOINT_URL}/store`);
+      response.redirect(`${process.env.FRONTEND_ENDPOINT_URL}/store`);
     } catch (error) {
       console.log(error);
       response.status(500).json({ error });
