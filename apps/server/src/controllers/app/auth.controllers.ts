@@ -1,19 +1,95 @@
-import { generateAccessToken, verifyRefreshJwtToken } from "../../helper/token";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshJwtToken,
+} from "../../helper/token";
 import asyncHandler from "../../utils/asyncHandler";
 
 import { Request, Response } from "express";
 import ApiResponse from "../../utils/ApiResponse";
-import { eq } from "drizzle-orm";
+
 import { user } from "../../db/schema";
 import { db } from "../../db";
 import { passwordHashed } from "../../helper/hasher";
 import ApiError from "../../utils/ApiError";
+import { client } from "../../config/googleAuth.config";
+import { eq } from "drizzle-orm";
+import { generateOTP } from "../../utils/otpGenerator";
+import { getSMSProvider } from "../../service/sms/providerFactory";
 
 interface User {
   id: string;
   email: string;
   refreshToken: string;
 }
+
+export const appGoogleLogin = asyncHandler(
+  async (request: Request, response: Response) => {
+    const { idToken } = request.body;
+
+    console.log(idToken);
+
+    if (!idToken) {
+      response.status(400).json({ error: "ID token is required" });
+    }
+
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience:
+          process.env.GOOGLE_CLIENT_ID ||
+          "452133296020-vnm82pl00uft6md2f6rhe26qf3i2pvm2.apps.googleusercontent.com",
+      });
+
+      const payload = ticket.getPayload();
+
+      // if (!payload) {
+      //   response.status(400).json({ error: "Invalid ID token" });
+      // }
+
+      const googleId = payload?.sub;
+      const email = payload?.email;
+      const name = payload?.name;
+      const avatar = payload?.picture;
+
+      let userData = await db.query.user.findFirst({
+        where: eq(user.googleId, googleId!) || eq(user.email, email!),
+      });
+
+      if (!userData) {
+        [userData] = await db
+          .insert(user)
+          .values({
+            googleId: googleId || " ",
+            email: email || "",
+            name: name || "",
+            avatar: avatar || "",
+          })
+          .returning();
+      }
+
+      const accessToken = await generateAccessToken({
+        id: userData.id,
+        email: userData.email!,
+      });
+
+      response.json(
+        new ApiResponse(
+          200,
+          {
+            user: userData,
+            session: request.session,
+            token: accessToken,
+          },
+          "User logged In Successfully"
+        )
+      );
+    } catch (error) {
+      console.log(error);
+      response.status(400).json(new ApiError(400, "Error Happens", error));
+    }
+  }
+);
 
 export const googleCallback = asyncHandler(
   async (request: Request, response: Response) => {
@@ -54,138 +130,66 @@ export const googleCallback = asyncHandler(
   }
 );
 
-export const generateRefreshToken = asyncHandler(
+// export const generateRefreshToken = asyncHandler(
+//   async (request: Request, response: Response) => {
+//     const refreshToken = request.cookies.refresh_token;
+
+//     if (!refreshToken) {
+//       response.status(403).json({ error: "Refresh token Missing" });
+//     } else {
+//       try {
+//         const decoded = verifyRefreshJwtToken(refreshToken) as User;
+
+//         //Find user in DB
+//         const userData = await db.query.user.findFirst({
+//           where: eq(user.id, decoded.id),
+//         });
+
+//         if (!userData || userData.refreshToken !== refreshToken) {
+//           response.status(403).json({ error: "Invalid refresh token" });
+//         } else {
+//           // Generate new tokens
+//           const newAccessToken = generateAccessToken({
+//             id: userData.id,
+//             email: userData.email!,
+//           });
+//           response.cookie("access_token", newAccessToken, {
+//             // httpOnly: true,
+//             secure: true,
+//             maxAge: 15 * 60 * 1000, // 15 minutes
+//             sameSite: "none",
+//           });
+//           response.status(200).json({ accessToken: newAccessToken });
+//         }
+//       } catch {
+//         response.status(403).json({ error: "Invalid token" });
+//       }
+//     }
+//   }
+// );
+
+export const sendSMS = asyncHandler(
   async (request: Request, response: Response) => {
-    const refreshToken = request.cookies.refresh_token;
+    // TODO: Implement SMS sending logic using the provider factory
+    const { mobile, countryCode } = request.body;
 
-    if (!refreshToken) {
-      response.status(403).json({ error: "Refresh token Missing" });
-    } else {
-      try {
-        const decoded = verifyRefreshJwtToken(refreshToken) as User;
+    const otp = generateOTP();
+    const provider = getSMSProvider();
 
-        //Find user in DB
-        const userData = await db.query.user.findFirst({
-          where: eq(user.id, decoded.id),
-        });
+    await provider.send(`+919674128921`, `Your OTP is ${otp}`);
 
-        if (!userData || userData.refreshToken !== refreshToken) {
-          response.status(403).json({ error: "Invalid refresh token" });
-        } else {
-          // Generate new tokens
-          const newAccessToken = generateAccessToken({
-            id: userData.id,
-            email: userData.email!,
-          });
-          response.cookie("access_token", newAccessToken, {
-            // httpOnly: true,
-            secure: true,
-            maxAge: 15 * 60 * 1000, // 15 minutes
-            sameSite: "none",
-          });
-          response.status(200).json({ accessToken: newAccessToken });
-        }
-      } catch {
-        response.status(403).json({ error: "Invalid token" });
-      }
-    }
-  }
-);
-
-export const loginUser = asyncHandler(
-  async (request: Request, response: Response) => {
-    const user = request.user as User;
-    console.log("Login User api",user)
-    const accessToken = generateAccessToken({
-      id: user.id,
-      email: user.email,
+    await db.insert(user).values({
+      phone: "+919674128921",
+      otp,
+      otpExpiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
-
-    if (request.user) {
-      // Set HTTP-only cookies
-      response.cookie("access_token", accessToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: 15 * 60 * 1000, // 15 minutes
-        sameSite: "strict",
-      });
-
-      response.cookie("refresh_token", user.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      response.json(
-        new ApiResponse(
-          200,
-          {
-            user: user,
-            session: request.session,
-            token: accessToken,
-          },
-          "User logged In Successfully"
-        )
-      );
-    } else {
-      response.sendStatus(401);
-    }
+    response.status(200).json({ message: "SMS sent successfully" });
   }
 );
 
-export const registerUser = asyncHandler(
+export const verifySMS = asyncHandler(
   async (request: Request, response: Response) => {
-    const { name, email, password, avatar } = request.body;
-
-    try {
-      const existedUser = await db.query.user.findFirst({
-        where: eq(user.email, email),
-      });
-
-      if (existedUser) {
-        response
-          .status(200)
-          .json(new ApiResponse(409, {}, "User already exists"));
-      } else {
-        const hashedPassword = await passwordHashed(password);
-        const [createdUser] = await db
-          .insert(user)
-          .values({
-            name,
-            email,
-            // password: hashedPassword,
-            avatar,
-           
-          })
-          .returning();
-        // const token = generateEmailVerifyToken(email);
-
-        // const dataFile = await axios.post(
-        // 	`${process.env.EMAIL_SERVICE_URI!}/auth/verify-email`,
-        // 	{
-        // 		to: email,
-        // 		data: {
-        // 			userName: firstName,
-        // 			verificationLink: `${process.env.FRONTEND_ENDPOINT_URL!}/verify-email?token=${token}`,
-        // 		},
-        // 	},
-        // 	{
-        // 		headers: {
-        // 			'Content-Type': 'application/json',
-        // 		},
-        // 	}
-        // );
-
-        // console.log('Email dataFile', dataFile);
-
-        response
-          .status(200)
-          .json(new ApiResponse(200, createdUser, "New User Created"));
-      }
-    } catch (error) {
-      console.log(error);
-      response.status(400).json(new ApiError(400, "Error Happens", error));
-    }
+    // TODO: Implement SMS verification logic
+    response.status(200).json({ message: "SMS verification endpoint" });
   }
 );

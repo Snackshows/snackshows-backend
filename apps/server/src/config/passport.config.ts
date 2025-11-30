@@ -70,23 +70,24 @@ export const initializePassportStrategies = () => {
             ///User is Authenticated
             console.log("Auth Parsed User-->", isPasswordMatched);
 
-            const refreshToken = generateRefreshToken(existingEmployee.id);
+            // const refreshToken = generateRefreshToken(existingEmployee.id);
 
-            const [updatedEmployee] = await db
-              .update(employee)
-              .set({
-                refreshToken,
-              })
-              .where(eq(employee.id, existingEmployee.id))
-              .returning();
+            // const [updatedEmployee] = await db
+            //   .update(employee)
+            //   .set({
+            //     refreshToken,
+            //   })
+            //   .where(eq(employee.id, existingEmployee.id))
+            //   .returning();
 
             console.log(
               "Fetch User data in Local strategy FNS",
               email,
               password,
-              refreshToken
+              // refreshToken
             );
-            return done(null, updatedEmployee);
+            // return done(null, updatedEmployee);
+            return done(null, existingEmployee);
           } else {
             return done(null, false, { message: "Incorrect Password" });
           }
@@ -96,80 +97,7 @@ export const initializePassportStrategies = () => {
       }
     )
   );
-  //   passport.use(
-  //     "customer-local",
-  //     new localStrategy(
-  //       {
-  //         usernameField: "email",
-  //         passwordField: "password",
-  //         passReqToCallback: true,
-  //       },
-  //       async (request, email, password, done) => {
-  //         //authentication Logic here
-  //         try {
-  //           const storeId = request.storeId!;
-  //           console.log("Receive Customer Credentials", email, password, storeId);
-
-  //           const customerStoreDetails = await db.query.customerStore.findMany({
-  //             where: eq(customerStore.storeId, storeId),
-  //             with: {
-  //               customer: true,
-  //             },
-  //             columns: {
-  //               customerId: false,
-  //               storeId: false,
-  //               registerAt: false,
-  //             },
-  //           });
-
-  //           const customerDetails = customerStoreDetails.find(
-  //             (customer) => customer.customer.email === email
-  //           );
-  //           console.log("Receive Customer Details", customerDetails);
-
-  //           console.debug("Customer Details", customerDetails);
-  //           if (!customerDetails) {
-  //             return done(null, false, { message: "Incorrect email" });
-  //           }
-
-  //           const isPasswordMatched = await comparePassword(
-  //             password,
-  //             customerDetails.customer.password!
-  //           );
-
-  //           if (isPasswordMatched) {
-  //             ///User is Authenticated
-  //             console.log("Auth Parsed User-->", isPasswordMatched);
-
-  //             const refreshToken = generateRefreshToken(
-  //               customerDetails.customer.id
-  //             );
-
-  //             const updatedUser = await db
-  //               .update(customer)
-  //               .set({
-  //                 refreshToken,
-  //               })
-  //               .where(eq(customer.id, customerDetails.customer.id))
-  //               .returning();
-
-  //             console.log(
-  //               "Fetch Customer data in Local strategy FNS",
-  //               email,
-  //               password,
-  //               refreshToken
-  //             );
-  //             return done(null, updatedUser[0]);
-  //           } else {
-  //             return done(null, false, { message: "Incorrect Password" });
-  //           }
-  //         } catch (error) {
-  //           return done(error);
-  //         }
-  //       }
-  //     )
-  //   );
-
+ 
   const cookieExtractor = (req: Request) => {
     let token = null;
     console.log("Cookie Extractor", req.cookies.access_token);
@@ -240,17 +168,18 @@ export const initializePassportStrategies = () => {
               .returning();
           }
 
-          const refreshToken = await generateRefreshToken(userData.id);
+          // const refreshToken = await generateRefreshToken(userData.id);
 
-          const [updatedUser] = await db
-            .update(user)
-            .set({
-              refreshToken,
-            })
-            .where(eq(user.id, userData!.id))
-            .returning();
+          // const [updatedUser] = await db
+          //   .update(user)
+          //   .set({
+          //     refreshToken,
+          //   })
+          //   .where(eq(user.id, userData!.id))
+          //   .returning();
 
-          return done(null, updatedUser);
+          // return done(null, updatedUser);
+          return done(null, userData);
         } catch (error) {
           return done(error, false);
         }

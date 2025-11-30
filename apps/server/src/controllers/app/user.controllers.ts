@@ -16,12 +16,7 @@ export const getAllUsers = asyncHandler(
     // const authUser = request.user   as InferSelectModel<typeof user>;
 
     try {
-      const userprofile = await db.query.user.findMany({
-        columns: {
-         
-          refreshToken: false,
-        },
-      });
+      const userprofile = await db.query.user.findMany();
 
       response
         .status(200)

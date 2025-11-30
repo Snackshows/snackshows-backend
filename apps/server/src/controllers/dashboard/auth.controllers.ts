@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 
 import { eq } from "drizzle-orm";
@@ -9,7 +8,6 @@ import { employee } from "../../db/schema";
 import ApiResponse from "../../utils/ApiResponse";
 import { passwordHashed } from "../../helper/hasher";
 import ApiError from "../../utils/ApiError";
-
 
 interface User {
   id: string;
@@ -58,7 +56,7 @@ interface User {
 export const loginUser = asyncHandler(
   async (request: Request, response: Response) => {
     const user = request.user as User;
-    console.log("Login User api",user)
+    console.log("Login User api", user);
     const accessToken = generateAccessToken({
       id: user.id,
       email: user.email,
@@ -71,13 +69,6 @@ export const loginUser = asyncHandler(
         secure: true,
         maxAge: 15 * 60 * 1000, // 15 minutes
         sameSite: "strict",
-      });
-
-      response.cookie("refresh_token", user.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       response.json(
@@ -122,25 +113,6 @@ export const registerEmployee = asyncHandler(
             role: "EMPLOYEE",
           })
           .returning();
-        // const token = generateEmailVerifyToken(email);
-
-        // const dataFile = await axios.post(
-        // 	`${process.env.EMAIL_SERVICE_URI!}/auth/verify-email`,
-        // 	{
-        // 		to: email,
-        // 		data: {
-        // 			userName: firstName,
-        // 			verificationLink: `${process.env.FRONTEND_ENDPOINT_URL!}/verify-email?token=${token}`,
-        // 		},
-        // 	},
-        // 	{
-        // 		headers: {
-        // 			'Content-Type': 'application/json',
-        // 		},
-        // 	}
-        // );
-
-        // console.log('Email dataFile', dataFile);
 
         response
           .status(200)

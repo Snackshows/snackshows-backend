@@ -18,7 +18,7 @@ export const user = pgTable("user", {
     .primaryKey()
     .notNull()
     .$defaultFn(() => ulid()),
-  name: varchar("name", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }),
   age: integer("age"),
   gender: genderEnum(),
   avatar: varchar("avatar", { length: 255 }),
@@ -31,14 +31,12 @@ export const user = pgTable("user", {
 
   // OAuth logins
   googleId: varchar("google_id", { length: 255 }).unique(),
-  googleMail: varchar("google_mail", { length: 255 }).unique(),
   instagramId: varchar("instagram_id", { length: 255 }).unique(),
   instagramMail: varchar("instagram_mail", { length: 255 }).unique(),
   
 
   isBlocked: boolean("is_active").notNull().default(false),
   dateOfBirth: timestamp("date_of_birth", { mode: "string" }),
-  refreshToken: varchar("refresh_token"),
   createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
 });

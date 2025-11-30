@@ -71,6 +71,20 @@
       "when": 1764413908064,
       "tag": "0009_romantic_johnny_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1764452055484,
+      "tag": "0010_spooky_lockjaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1764497480604,
+      "tag": "0011_pale_tiger_shark",
+      "breakpoints": true
     }
   ]
 }
