@@ -48,7 +48,8 @@ export const createUser = asyncHandler(
         age,
         gender: isValidGender,
         avatar,
-        phone,
+
+        phoneNumber: phone,
       });
 
       response
@@ -59,8 +60,6 @@ export const createUser = asyncHandler(
     }
   }
 );
-
-
 
 // export const userProfile = asyncHandler(
 //   async (request: Request, response: Response) => {

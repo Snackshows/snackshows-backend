@@ -1,21 +1,16 @@
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshJwtToken,
-} from "../../helper/token";
+import { generateAccessToken } from "../../helper/token";
 import asyncHandler from "../../utils/asyncHandler";
 
 import { Request, Response } from "express";
 import ApiResponse from "../../utils/ApiResponse";
-
 import { user } from "../../db/schema";
 import { db } from "../../db";
-import { passwordHashed } from "../../helper/hasher";
 import ApiError from "../../utils/ApiError";
 import { client } from "../../config/googleAuth.config";
 import { eq } from "drizzle-orm";
 import { generateOTP } from "../../utils/otpGenerator";
 import { getSMSProvider } from "../../service/sms/providerFactory";
+import redis from "../../lib/redis";
 
 interface User {
   id: string;
@@ -173,23 +168,121 @@ export const sendSMS = asyncHandler(
     // TODO: Implement SMS sending logic using the provider factory
     const { mobile, countryCode } = request.body;
 
-    const otp = generateOTP();
+    const otpKey = `otp:${mobile}`;
+    const coolDownKey = `otp:cooldown:${mobile}`;
+
     const provider = getSMSProvider();
 
-    await provider.send(`+919674128921`, `Your OTP is ${otp}`);
+    try {
+      // -------- 1. Check cooldown (wait 60 sec before resend) --------
+      const coolDown = await redis.ttl(coolDownKey);
+      if (coolDown > 0) {
+        return response
+          .status(429)
+          .json(
+            new ApiError(
+              429,
+              `Please wait ${coolDown} seconds before requesting another OTP.`
+            )
+          );
+      }
 
-    await db.insert(user).values({
-      phone: "+919674128921",
-      otp,
-      otpExpiresAt: new Date(Date.now() + 5 * 60 * 1000),
-    });
-    response.status(200).json({ message: "SMS sent successfully" });
+      // -------- 2. Generate OTP --------
+      const otp = generateOTP();
+
+      // -------- 3. Save OTP in Redis (expire in 5 minutes) --------
+      await redis.set(otpKey, otp, "EX", 300); // 300 sec = 5 mins
+
+      // -------- 4. Create resend cooldown (60 seconds) --------
+      await redis.set(coolDownKey, "1", "EX", 60);
+
+      await redis.set(`otp:${mobile}`, otp); // 5 minutes expiry
+
+      await provider.send(
+        `+${countryCode}${mobile}`,
+        `Use OTP ${otp} to verify your SnackShows account. Do not share this code with anyone.`
+      );
+
+      response
+        .status(200)
+        .json(new ApiResponse(200, {}, "SMS sent successfully"));
+    } catch (error) {
+      response.status(400).json(new ApiError(400, "Error Happened", error));
+    }
   }
 );
 
-export const verifySMS = asyncHandler(
+export const verifyOtpSms = asyncHandler(
   async (request: Request, response: Response) => {
     // TODO: Implement SMS verification logic
-    response.status(200).json({ message: "SMS verification endpoint" });
+    const { phone, otp } = request.body;
+
+    console.log("Phone:", phone, "OTP:", otp);
+
+    try {
+      const otpKey = `otp:${phone}`;
+      const attemptsKey = `otp:attempts:${otp}`;
+
+      // ---- 1. Get OTP from redis ----
+      const correctOtp = await redis.get(otpKey);
+      if (!correctOtp) {
+        response
+          .status(400)
+          .json(new ApiError(400, "OTP expired or not found"));
+      }
+
+      // ---- 2. Check maximum attempts ----
+      const attempts = parseInt((await redis.get(attemptsKey)) || "0");
+      if (attempts >= 5) {
+        response
+          .status(400)
+          .json(new ApiError(400, "Too many failed attempts"));
+      }
+
+      // ---- 3. Compare OTP ----
+      if (correctOtp !== otp) {
+        await redis.incr(attemptsKey);
+        await redis.expire(attemptsKey, 300);
+        response.status(400).json(new ApiError(400, "Invalid OTP"));
+      }
+
+      // ---- 4. OTP matched → Remove keys ----
+      await redis.del(otpKey);
+      await redis.del(attemptsKey);
+
+      // ---- 5. **DB Logic: Create User if not exists** ----
+      let userData = await db.query.user.findFirst({
+        where: eq(user.phoneNumber, phone),
+      });
+
+      console.log("Found user data:", userData);
+      if (!userData) {
+        const inserted = await db
+          .insert(user)
+          .values({ phoneNumber: phone })
+          .returning();
+        userData = inserted[0];
+      }
+
+      const accessToken = generateAccessToken({
+        id: userData.id,
+        email: userData.email ?? "",
+      });
+
+      response.status(200).json(
+        new ApiResponse(
+          200,
+          {
+            user: userData,
+            session: request.session,
+            token: accessToken,
+          },
+          "User logged In Successfully"
+        )
+      );
+    } catch (error) {
+      console.error("Error in verifyOtpSms:", error);
+      response.status(400).json(new ApiError(400, "Error Happened", error));
+    }
   }
 );

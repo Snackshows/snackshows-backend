@@ -25,9 +25,9 @@ export const user = pgTable("user", {
   email: varchar("email", { length: 255 }).unique(),
 
   // Mobile Auth
-  phone: varchar("phone", { length: 20 }).unique(),
-  otp: varchar("otp", { length: 6 }), // store latest OTP
-  otpExpiresAt: timestamp("otp_expires_at"), // OTP expiry time
+  phoneNumber: varchar("phone_number", { length: 20 }).unique(),
+  countryCode: varchar("country_code", { length: 5 }),
+  isPhoneNumber: boolean("is_phone_number").default(false),
 
   // OAuth logins
   googleId: varchar("google_id", { length: 255 }).unique(),

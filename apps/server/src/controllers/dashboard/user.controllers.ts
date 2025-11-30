@@ -44,7 +44,7 @@ export const createNewUser = asyncHandler(
 
     try {
       const findUser = await db.query.user.findFirst({
-        where: eq(user.phone, phone),
+        where: eq(user.phoneNumber, phone),
       });
 
       if (findUser) {
@@ -57,7 +57,7 @@ export const createNewUser = asyncHandler(
           age,
           gender: isValidGender,
           avatar,
-          phone,
+          phoneNumber: phone,
         });
 
         response
