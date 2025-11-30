@@ -1,24 +1,25 @@
-import { Router } from 'express';
-import { jwtAuthMiddleware } from '../../middleware/auth.middleware';
-// import {
-// 	createCategory,
-// 	deleteCategory,
-// 	getCategories,
-// 	updateCategory,
-// } from '../../controllers/dashboard/category.controllers';
+import { Router } from "express";
+import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
+import {
+  createCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory,
+//   updateCategory,
+} from "../../controllers/dashboard/category.controllers";
 
-// const router = Router();
+const router = Router();
 
-// // Product routes
-// router
-// 	.route('/')
-// 	.post(jwtAuthMiddleware, createCategory)
-// 	.get(jwtAuthMiddleware, getCategories);
+router.route("/create").post(jwtAuthMiddleware, createCategory);
 
-// router
-// 	.route('/:categoryId')
-// 	.get(jwtAuthMiddleware, getCategories)
-// 	.put(jwtAuthMiddleware, updateCategory)
-// 	.delete(jwtAuthMiddleware, deleteCategory);
+router
+  .route("/")
+  .get(jwtAuthMiddleware, getCategories)
+  .put(jwtAuthMiddleware, updateCategory)
 
-// export default router;
+router
+  .route("/:categoryId")
+  .get(jwtAuthMiddleware, getCategories)
+  .delete(jwtAuthMiddleware, deleteCategory);
+
+export default router;

@@ -1,34 +1,24 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-	googleOAuthCallback,
-	googleOAuthMiddleware,
-	
-} from '../../middleware/auth.middleware';
+  googleOAuthCallback,
+} from "../../middleware/auth.middleware";
 import {
-	generateRefreshToken,
-	googleCallback,
-	loginUser,
-    registerUser,
-} from '../../controllers/app/auth.controllers';
+  appGoogleLogin,
+  googleCallback,
+  sendSMS,
+  verifyOtpSms,
 
+} from "../../controllers/app/auth.controllers";
 
 const router = Router();
 
-// User Authentication
-router.route('/google').get(googleOAuthMiddleware);
-router.route('/google/callback').get(googleOAuthCallback, googleCallback);
-router.route('/refresh-token').get(generateRefreshToken);
+// App Google Authentication
+router.route("/google").post(appGoogleLogin);
+router.route("/google/callback").get(googleOAuthCallback, googleCallback);
+// router.route('/refresh-token').get(generateRefreshToken);
 
-
-
-
-
-
-
-
-// //  Admin Login & Signup
-// router.route("/dashboard/signup").post( registerUser);
-// router.route("/dashboard/login").post(localUserAuthMiddleware, loginUser);
-
+// SMS Authentication
+router.route("/sms/send").post(sendSMS);
+router.route("/sms/verify").post(verifyOtpSms);
 
 export default router;

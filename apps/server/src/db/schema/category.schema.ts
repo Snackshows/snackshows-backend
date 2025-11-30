@@ -1,4 +1,4 @@
-import { pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
 import { generateUniqueId } from "../../utils/idGenerator";
@@ -13,9 +13,10 @@ export const category = pgTable("category", {
   uniqueId: varchar("unique_id")
     .unique()
     .notNull()
-    .$defaultFn(() => generateUniqueId("CAT")),
-  name: varchar("name"),
-  description: varchar("description"),
+    .$defaultFn(() => generateUniqueId("CAT")).notNull(),
+  name: varchar("name").notNull(),
+  description: varchar("description").notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
   createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
 });

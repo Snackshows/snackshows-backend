@@ -18,33 +18,25 @@ export const user = pgTable("user", {
     .primaryKey()
     .notNull()
     .$defaultFn(() => ulid()),
-  name: varchar("name", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }),
   age: integer("age"),
   gender: genderEnum(),
   avatar: varchar("avatar", { length: 255 }),
-  // role:userRoleEnum().notNull().default("USER"),
-
   email: varchar("email", { length: 255 }).unique(),
-  password: varchar("password", { length: 255 }), // only for admin or web users
 
   // Mobile Auth
-  phone: varchar("phone", { length: 20 }).unique(),
-  otp: varchar("otp", { length: 6 }), // store latest OTP
-  otpExpiresAt: timestamp("otp_expires_at"), // OTP expiry time
+  phoneNumber: varchar("phone_number", { length: 20 }).unique(),
+  countryCode: varchar("country_code", { length: 5 }),
+  isPhoneNumber: boolean("is_phone_number").default(false),
 
   // OAuth logins
   googleId: varchar("google_id", { length: 255 }).unique(),
-  googleMail: varchar("google_mail", { length: 255 }).unique(),
   instagramId: varchar("instagram_id", { length: 255 }).unique(),
   instagramMail: varchar("instagram_mail", { length: 255 }).unique(),
   
-  //   phone: varchar({ length: 255 }),
-  //   phoneVerified: boolean("phone_verified").notNull().default(false),
-  //   password: varchar({ length: 255 }),
-  //   googleId: varchar("google_id"),
-  isBlocked: boolean("is_active").notNull().default(true),
+
+  isBlocked: boolean("is_active").notNull().default(false),
   dateOfBirth: timestamp("date_of_birth", { mode: "string" }),
-  refreshToken: varchar("refresh_token"),
   createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
 });

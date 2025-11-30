@@ -20,14 +20,14 @@ export const getAllUsers = asyncHandler(
 
       response
         .status(200)
-        .json(new ApiResponse(200, userprofile, "Fetch All Users"));
+        .json(new ApiResponse(200, userprofile, "Fetch Users Details"));
     } catch (error) {
       response.status(400).json(new ApiError(400, "Error Happened", error));
     }
   }
 );
 
-export const createNewUser = asyncHandler(
+export const createUser = asyncHandler(
   async (request: Request, response: Response) => {
     const { name, age, gender, avatar, phone } = request.body;
 
@@ -43,51 +43,18 @@ export const createNewUser = asyncHandler(
             : null;
 
     try {
-      const findUser = await db.query.user.findFirst({
-        where: eq(user.phoneNumber, phone),
+      const createdUser = await db.insert(user).values({
+        name,
+        age,
+        gender: isValidGender,
+        avatar,
+
+        phoneNumber: phone,
       });
-
-      if (findUser) {
-        response
-          .status(409)
-          .json(new ApiResponse(409, null, "User already exists"));
-      } else {
-        const createdUser = await db.insert(user).values({
-          name,
-          age,
-          gender: isValidGender,
-          avatar,
-          phoneNumber: phone,
-        });
-
-        response
-          .status(200)
-          .json(new ApiResponse(200, createdUser, "User is Registered"));
-      }
-    } catch (error) {
-      response.status(400).json(new ApiError(400, "Error Happened", error));
-    }
-  }
-);
-
-export const getUserDetails = asyncHandler(
-  async (request: Request, response: Response) => {
-    const { userId } = request.params;
-
-    try {
-      const userprofile = await db.query.user.findFirst({
-        where: eq(user.id, userId),
-      });
-
-      if (!userprofile) {
-        return response
-          .status(404)
-          .json(new ApiResponse(404, null, "User not found"));
-      }
 
       response
         .status(200)
-        .json(new ApiResponse(200, userprofile, "Fetch User Details"));
+        .json(new ApiResponse(200, createdUser, "User is Registered"));
     } catch (error) {
       response.status(400).json(new ApiError(400, "Error Happened", error));
     }
