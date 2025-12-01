@@ -13,8 +13,12 @@ const router = Router();
 router
   .route("/")
   .post(jwtAuthMiddleware, createVideoSeries)
-  .get(jwtAuthMiddleware, getAllVideoSeries).put(jwtAuthMiddleware,updateVideoSeries)
+  .get(jwtAuthMiddleware, getAllVideoSeries)
+  .put(jwtAuthMiddleware, updateVideoSeries);
 
-router.route("/:id").get(jwtAuthMiddleware, getVideoSeriesById).delete(jwtAuthMiddleware,deleteVideoSeries)
+router
+  .route("/:id")
+  .get(jwtAuthMiddleware, getVideoSeriesById)
+  .delete(jwtAuthMiddleware, deleteVideoSeries);
 
 export default router;

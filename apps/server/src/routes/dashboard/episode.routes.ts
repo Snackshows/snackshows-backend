@@ -16,7 +16,9 @@ import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-router.route("/").get(jwtAuthMiddleware);
+// router.route("/").post(jwtAuthMiddleware,addEpisode).get(jwtAuthMiddleware,getAllEpisode)
+
+
 
 // router
 //   .route("/profile")
