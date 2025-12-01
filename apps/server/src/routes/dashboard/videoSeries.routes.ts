@@ -1,22 +1,20 @@
 import { Router } from "express";
 import {
-  // deleteUserProfile,
-  forgetPassword,
-  // getUserNotification,
-  // getUserSettings,
-  // logoutUser,
-  // // registerClient,
-  // resetLink,
-  // updateUserProfile,
-  // updateUserSecurity,
-  // updateUserSettings,
-  // userProfile,
-} from "../../controllers/dashboard/user.controllers";
+  createVideoSeries,
+  deleteVideoSeries,
+  getAllVideoSeries,
+  getVideoSeriesById,
+  updateVideoSeries,
+} from "../../controllers/dashboard/videoSeries.controllers";
 import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-router.route("/").get(jwtAuthMiddleware);
- 
+router
+  .route("/")
+  .post(jwtAuthMiddleware, createVideoSeries)
+  .get(jwtAuthMiddleware, getAllVideoSeries).put(jwtAuthMiddleware,updateVideoSeries)
+
+router.route("/:id").get(jwtAuthMiddleware, getVideoSeriesById).delete(jwtAuthMiddleware,deleteVideoSeries)
 
 export default router;

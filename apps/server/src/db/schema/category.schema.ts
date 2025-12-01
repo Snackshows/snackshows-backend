@@ -2,7 +2,7 @@ import { boolean, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
 import { generateUniqueId } from "../../utils/idGenerator";
-import { vertical } from "./vertical";
+import { series } from "./series.schema";
 
 // Category table
 export const category = pgTable("category", {
@@ -13,7 +13,8 @@ export const category = pgTable("category", {
   uniqueId: varchar("unique_id")
     .unique()
     .notNull()
-    .$defaultFn(() => generateUniqueId("CAT")).notNull(),
+    .$defaultFn(() => generateUniqueId("CAT"))
+    .notNull(),
   name: varchar("name").notNull(),
   description: varchar("description").notNull(),
   isActive: boolean("is_active").default(false).notNull(),
@@ -22,7 +23,7 @@ export const category = pgTable("category", {
 });
 
 export const categoryRelations = relations(category, ({ one, many }) => ({
-  verticals: many(vertical),
+  series: many(series),
   // product: many(product),
   // parentCategory: one(category, {
   // 	fields: [category.parentId],

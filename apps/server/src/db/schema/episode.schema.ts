@@ -8,7 +8,7 @@ import {
 import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
 import { generateUniqueId } from "../../utils/idGenerator";
-import { vertical } from "./vertical";
+import { series } from "./series.schema";
 
 // Episode table
 export const episode = pgTable("episode", {
@@ -16,7 +16,7 @@ export const episode = pgTable("episode", {
     .primaryKey()
     .notNull()
     .$defaultFn(() => ulid()),
-  verticalId: varchar("vertical_id").references(() => vertical.id),
+  seriesId: varchar("series_id").references(() => series.id),
   name: varchar("name"),
   episodeNumber: integer("episode_number").notNull(),
   videoImage: varchar("video_image"),
@@ -32,8 +32,8 @@ export const episode = pgTable("episode", {
 });
 
 export const episodeRelations = relations(episode, ({ one, many }) => ({
-  show: one(vertical, {
-    fields: [episode.verticalId],
-    references: [vertical.id],
+  series: one(series, {
+    fields: [episode.seriesId],
+    references: [series.id],
   }),
 }));
