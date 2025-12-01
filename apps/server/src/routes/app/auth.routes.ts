@@ -21,4 +21,7 @@ router.route("/google/callback").get(googleOAuthCallback, googleCallback);
 router.route("/sms/send").post(sendSMS);
 router.route("/sms/verify").post(verifyOtpSms);
 
+// Instagram Authentication
+// router.route("/instagram").post(instagramLogin);
+
 export default router;
