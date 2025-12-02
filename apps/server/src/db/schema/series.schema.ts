@@ -9,10 +9,10 @@ import { relations } from "drizzle-orm";
 import { ulid } from "ulid";
 import { generateUniqueId } from "../../utils/idGenerator";
 import { category } from "./category.schema";
-import { episode } from "./episode";
+import { episode } from "./episode.schema";
 
 // Verticals table
-export const vertical = pgTable("vertical", {
+export const series = pgTable("series", {
   id: varchar("id")
     .primaryKey()
     .notNull()
@@ -47,11 +47,11 @@ export const vertical = pgTable("vertical", {
 });
 
 // Define relations
-export const verticalRelations = relations(vertical, ({ one, many }) => ({
+export const seriesRelations = relations(series, ({ one, many }) => ({
   episodes: many(episode),
 
   category: one(category, {
-    fields: [vertical.categoryId],
+    fields: [series.categoryId],
     references: [category.id],
   }),
 }));
