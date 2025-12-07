@@ -92,7 +92,7 @@ export const getHomePageData = asyncHandler(
           };
 
           // Step 8: Cache final homepage JSON for 5 minutes
-          await redis.setex(cacheKey, 300, JSON.stringify(homeData));
+          await redis.set(cacheKey,  JSON.stringify(homeData),"EX",300);
 
           response.status(200).json(new ApiResponse(200,homeData,"Fetch Home Page Data"))
         });
