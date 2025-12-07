@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { generateOTP } from "../../utils/otpGenerator";
 import { getSMSProvider } from "../../service/sms/providerFactory";
 import redis from "../../lib/redis";
+import { passwordHashed } from "../../helper/hasher";
 
 interface User {
   id: string;
@@ -283,6 +284,79 @@ export const verifyOtpSms = asyncHandler(
     } catch (error) {
       console.error("Error in verifyOtpSms:", error);
       response.status(400).json(new ApiError(400, "Error Happened", error));
+    }
+  }
+);
+
+
+export const loginUser = asyncHandler(
+  async (request: Request, response: Response) => {
+    const user = request.user as User;
+    console.log("Login User api", user);
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+    });
+
+    if (request.user) {
+      // Set HTTP-only cookies
+      response.cookie("access_token", accessToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 15 * 60 * 1000, // 15 minutes
+        sameSite: "strict",
+      });
+
+      response.json(
+        new ApiResponse(
+          200,
+          {
+            user: user,
+            session: request.session,
+            token: accessToken,
+          },
+          "User logged In Successfully"
+        )
+      );
+    } else {
+      response.sendStatus(401);
+    }
+  }
+);
+
+export const registerUser = asyncHandler(
+  async (request: Request, response: Response) => {
+    const { name, email, password, avatar} = request.body;
+
+    try {
+      const existedUser = await db.query.user.findFirst({
+        where: eq(user.email, email),
+      });
+
+      if (existedUser) {
+        response
+          .status(200)
+          .json(new ApiResponse(409, {}, "User already exists"));
+      } else {
+        const hashedPassword = await passwordHashed(password);
+        const [createdUser] = await db
+          .insert(user)
+          .values({
+            name,
+            email,
+            password: hashedPassword,
+            avatar,
+           
+          })
+          .returning();
+
+        response
+          .status(200)
+          .json(new ApiResponse(200, "New User Created"));
+      }
+    } catch (error) {
+      console.log(error);
+      response.status(400).json(new ApiError(400, "Error Happens", error));
     }
   }
 );

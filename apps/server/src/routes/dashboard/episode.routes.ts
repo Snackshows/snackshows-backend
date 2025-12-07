@@ -13,10 +13,13 @@ import {
   // userProfile,
 } from "../../controllers/dashboard/user.controllers";
 import { jwtAuthMiddleware } from "../../middleware/auth.middleware";
+import { createEpisode, getAllEpisodes } from "../../controllers/dashboard/episode.controllers";
+// import { getAllEpisode } from "../../controllers/dashboard/episode.controllers";
 
 const router = Router();
 
-// router.route("/").post(jwtAuthMiddleware,addEpisode).get(jwtAuthMiddleware,getAllEpisode)
+router.route("/").post(jwtAuthMiddleware,createEpisode)
+.get(jwtAuthMiddleware,getAllEpisodes)
 
 
 

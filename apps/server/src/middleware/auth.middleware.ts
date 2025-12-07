@@ -7,14 +7,14 @@ export const localEmployeeAuthMiddleware = passport.authenticate("employee-local
   session: false,
   // successReturnToOrRedirect: '/',
 });
-// export const localCustomerAuthMiddleware = passport.authenticate(
-// 	'customer-local',
-// 	{
-// 		failureRedirect: '/login',
-// 		failureMessage: true,
-// 		session: false,
-// 	}
-// );
+export const localUserAuthMiddleware = passport.authenticate(
+	'user-local',
+	{
+		failureRedirect: '/login',
+		failureMessage: true,
+		session: false,
+	}
+);
 export const jwtAuthMiddleware = passport.authenticate("jwt", {
   session: false,
 });

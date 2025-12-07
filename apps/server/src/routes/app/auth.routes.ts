@@ -1,10 +1,13 @@
 import { Router } from "express";
 import {
   googleOAuthCallback,
+  localUserAuthMiddleware,
 } from "../../middleware/auth.middleware";
 import {
   appGoogleLogin,
   googleCallback,
+  loginUser,
+  registerUser,
   sendSMS,
   verifyOtpSms,
 
@@ -23,5 +26,8 @@ router.route("/sms/verify").post(verifyOtpSms);
 
 // Instagram Authentication
 // router.route("/instagram").post(instagramLogin);
+router.route("/signup").post(registerUser);
+router.route("/login").post(localUserAuthMiddleware, loginUser);
+
 
 export default router;

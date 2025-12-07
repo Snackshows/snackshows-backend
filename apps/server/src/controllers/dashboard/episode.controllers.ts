@@ -2,73 +2,65 @@ import { Request, Response } from "express";
 import { db } from "../../db";
 import { eq } from "drizzle-orm";
 import ApiResponse from "../../utils/ApiResponse";
-import { series } from "../../db/schema";
+import { episode, series } from "../../db/schema";
 import asyncHandler from "../../utils/asyncHandler";
 import ApiError from "../../utils/ApiError";
 
-export const createVideoSeries = asyncHandler(
+export const createEpisode = asyncHandler(
   async (request: Request, response: Response) => {
     const {
-      name,
-      description,
-      banner,
-      thumbnail,
-      type,
-      maxAdsForFreeView,
-      releaseDate,
-      isTrending,
-      isAutoAnimateBanner,
-      isActive,
-      categoryId,
-    } = request.body;
+    seriesId,
+    episodeNumber,
+    videoImage,
+    videoUrl,
+    duration,
+    coin,
+    isLocked,
+    releaseDate
+} = request.body;
 
     try {
-      const seriesData: any = {
-        name,
-        description,
-        banner,
-        thumbnail,
-        type,
-        maxAdsForFreeView,
-        isTrending,
-        isAutoAnimateBanner,
-        isActive,
-        categoryId,
+      const episodeData: any = {
+        seriesId,
+        episodeNumber,
+        videoImage,
+        videoUrl,
+        duration,
+        coin,
+        isLocked,
+        releaseDate,
       };
 
-      if (releaseDate) {
-        seriesData.releaseDate = new Date(releaseDate).toISOString();
+      // FIX: Handle empty/null releaseDate safely
+      if (!releaseDate || releaseDate === "") {
+        episodeData.releaseDate = null;
+      } else {
+        episodeData.releaseDate = new Date(releaseDate).toISOString();
       }
-
-      const [createdSeries] = await db
-        .insert(series)
-        .values(seriesData)
+      
+      const [createdEpisode] = await db
+        .insert(episode)
+        .values(episodeData)
         .returning();
 
       response
         .status(200)
-        .json(new ApiResponse(200, createdSeries, "New Video Series Created"));
+        .json(new ApiResponse(200, createdEpisode, "New Episode Created"));
     } catch (error) {
-      console.error("Error in createVideoSeries:", error);
+      console.error("Error in createEpisode:", error);
       response
         .status(500)
-        .json(new ApiError(500, "Error creating video series", error));
+        .json(new ApiError(500, "Error creating episode", error));
     }
   }
 );
 
-export const getAllVideoSeries = asyncHandler(
+export const getAllEpisodes = asyncHandler(
   async (request: Request, response: Response) => {
     try {
-      const allSeries = await db.query.series.findMany({
-        with: {
-          category: {
-            columns: {
-              name: true,
-            },
-          },
-        },
-        orderBy: (series, { desc }) => [desc(series.createdAt)],
+      const allSeries = await db.query.episode.findMany({
+        
+        orderBy: (episode, { desc }) => [desc(episode.createdAt)],
       });
 
       response

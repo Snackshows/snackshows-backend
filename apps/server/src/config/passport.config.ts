@@ -32,7 +32,7 @@ const accessTokenSecretKey = process.env.ACCESS_TOKEN_SECRET!;
 
 export const initializePassportStrategies = () => {
   /* =====================================================================
-	    USER LOCAL LOGIN (Admin/Web User)
+	    Employee LOCAL LOGIN (Admin/Web User)
 	===================================================================== */
   passport.use(
     "employee-local",
@@ -83,7 +83,7 @@ export const initializePassportStrategies = () => {
             console.log(
               "Fetch User data in Local strategy FNS",
               email,
-              password,
+              password
               // refreshToken
             );
             // return done(null, updatedEmployee);
@@ -97,7 +97,70 @@ export const initializePassportStrategies = () => {
       }
     )
   );
- 
+  /* =====================================================================
+	    USER LOCAL LOGIN (Admin/Web User)
+	===================================================================== */
+  passport.use(
+    "user-local",
+    new localStrategy(
+      { usernameField: "email", passwordField: "password" },
+      async (email, password, done) => {
+        //authentication Logic here
+        try {
+          console.log("Receive Credentials", email, password);
+          const existingUser = await db.query.user.findFirst({
+            where: eq(user.email, email),
+          });
+
+          if (!existingUser) {
+            return done(null, false, { message: "Incorrect email" });
+          }
+
+          // // 🚨 If user has Google ID, prevent local login
+          // if (userDetails.googleId) {
+          // 	return done(null, false, {
+          // 		message:
+          // 			'This account is registered with Google. Please log in using Google instead.',
+          // 		redirectTo: '/use-google-login',
+          // 	});
+          // }
+
+          console.debug("user Profile Details", existingUser);
+
+          const isPasswordMatched = await comparePassword(
+            password,
+            existingUser.password!
+          );
+
+          if (isPasswordMatched) {
+            ///User is Authenticated
+            console.log("Auth Parsed User-->", isPasswordMatched);
+
+            const parsedUser = {
+              id: existingUser.id,
+              email: existingUser.email,
+              name: existingUser.name,
+              avatar: existingUser.avatar,
+            };
+
+            console.log(
+              "Fetch User data in Local strategy FNS",
+              email,
+              password
+              // refreshToken
+            );
+            // return done(null, updatedEmployee);
+            return done(null, parsedUser);
+          } else {
+            return done(null, false, { message: "Incorrect Password" });
+          }
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+
   const cookieExtractor = (req: Request) => {
     let token = null;
     console.log("Cookie Extractor", req.cookies.access_token);

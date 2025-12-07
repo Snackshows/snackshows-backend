@@ -23,6 +23,7 @@ export const user = pgTable("user", {
   gender: genderEnum(),
   avatar: varchar("avatar", { length: 255 }),
   email: varchar("email", { length: 255 }).unique(),
+  password:varchar("password",{length:255}),
 
   // Mobile Auth
   phoneNumber: varchar("phone_number", { length: 20 }).unique(),
