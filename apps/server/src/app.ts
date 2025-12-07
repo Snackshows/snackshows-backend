@@ -12,6 +12,7 @@ import categoryDashboardRouter from './routes/dashboard/category.routes';
 // import bookingRouter from "./routes/booking.routes";
 
 import authAppRouter from './routes/app/auth.routes';
+import homeAppRouter from './routes/app/home.routes';
 import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
@@ -77,6 +78,7 @@ app.use('/api/v1/dashboard/episode', episodeDashboardRouter);
 
 //Application Routes Declaration
 app.use('/api/v1/app/auth', authAppRouter);
+app.use("/api/v1/app/home", homeAppRouter);
 // app.use('/api/v1/user', userRouter);
 // app.use('/api/v1/customer', customerRouter);
 // app.use('/api/v1/cart', cartRouter);

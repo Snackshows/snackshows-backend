@@ -17,16 +17,13 @@ export const episode = pgTable("episode", {
     .notNull()
     .$defaultFn(() => ulid()),
   seriesId: varchar("series_id").references(() => series.id),
-  name: varchar("name"),
   episodeNumber: integer("episode_number").notNull(),
   videoImage: varchar("video_image"),
   videoUrl: varchar("video_url"),
   duration: integer("duration"),
   coin: integer("coin"),
   isLocked: boolean("is_locked").notNull().default(false),
-  releaseDate: timestamp("release_date", { mode: "string" })
-    .notNull()
-    .defaultNow(),
+  releaseDate: timestamp("release_date", { mode: "string" }),
   createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
 });

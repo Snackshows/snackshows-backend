@@ -23,6 +23,7 @@ export const series = pgTable("series", {
     .$defaultFn(() => generateUniqueId("VRT")), // Changed prefix to VRT for vertical
   name: varchar("name").notNull(),
   description: varchar("description"),
+  views: integer("views"),
 
   // Media URLs
   banner: varchar("banner"),

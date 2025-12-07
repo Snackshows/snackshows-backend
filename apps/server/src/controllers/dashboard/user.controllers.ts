@@ -80,7 +80,7 @@ export const getUserDetails = asyncHandler(
       });
 
       if (!userprofile) {
-        return response
+        response
           .status(404)
           .json(new ApiResponse(404, null, "User not found"));
       }
